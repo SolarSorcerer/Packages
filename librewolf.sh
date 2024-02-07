@@ -16,3 +16,5 @@ EOF
 sudo apt update
 
 sudo apt install librewolf -y
+
+

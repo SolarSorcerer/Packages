@@ -35,6 +35,20 @@ PACKAGES=(
     "com.tutanota.Tutanota"
     "network.loki.Session"
     "io.gitlab.adhami3310.Impression"
+    "com.warlordsoftwares.formatlab"
+    "org.kde.krita"
+    "org.filezillaproject.Filezilla"
+    "com.ktechpit.whatsie"
+    "io.missioncenter.MissionCenter"
+    "com.gitlab.davem.ClamTk"
+    "fr.romainvigier.MetadataCleaner"
+    "org.bleachbit.BleachBit"
+    "org.raspberrypi.rpi-imager"
+    "dev.vencord.Vesktop"
+    "org.gnome.DejaDup"
+    "com.github.finefindus.eyedropper"
+    "app.drey.Warp"
+    "org.onionshare.OnionShare"
 )
 
 # Check for the '--all' argument to install all packages without prompting
@@ -52,7 +66,7 @@ install_flatpak_if_needed() {
         . /etc/os-release
 
         case $ID in
-            ubuntu|pop|debian)
+            ubuntu|pop|debian|kali)
                 sudo apt update && sudo apt install -y flatpak
                 ;;
             arch|manjaro)
