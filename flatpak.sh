@@ -1,9 +1,17 @@
 #!/bin/bash
 
+
 # Check if packages.json file exists
 if [ ! -f "packages.json" ]; then
-    echo "Error: packages.json file not found."
-    exit 1
+    echo "packages.json file not found."
+    read -p "Do you want to create a new packages.json file? (y/n): " create_packages_json
+    if [ "$create_packages_json" = "y" ]; then
+        echo '{"packages": []}' > packages.json
+        echo "packages.json created successfully."
+    else
+        echo "Exiting."
+        exit 0
+    fi
 fi
 
 # Install dependencies
