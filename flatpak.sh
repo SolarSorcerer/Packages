@@ -20,32 +20,40 @@ fi
 # Function to install a Flatpak package
 install_flatpak_package() {
     local package_id="$1"
-
-    # Check if the package is already installed
     if flatpak list | grep -q "$package_id"; then
         echo "$package_id is already installed, skipping."
         return
     fi
-
     echo "Installing: $package_id"
     flatpak install -y flathub "$package_id"
 }
 
-# Function to display package selection dialog
 show_package_selection_dialog() {
-    local dialog_args=("--stdout" "--clear" "--checklist" "Select packages to install:" 20 60 0)
-
-    # Read package IDs from packages.json
+    local dialog_args=("--stdout" "--clear" "--checklist" "Select packages to install or uninstall:" 20 60 0)
     local packages=($(jq -r '.packages | .[]' packages.json))
+    local installed_packages=$(flatpak list --columns=application | tr '\n' ' ')
 
-    # Populate dialog arguments with package list
     for package in "${packages[@]}"; do
-        dialog_args+=("$package" "" on)  # Select packages by default
+        if [[ $installed_packages == *"$package"* ]]; then
+            dialog_args+=("$package" "" on)
+        else
+            dialog_args+=("$package" "" off)
+        fi
     done
 
-    # Run dialog and capture user selection
-    dialog "${dialog_args[@]}"
+    # Capture user selection
+    local selections=($(dialog "${dialog_args[@]}"))
+    for package in "${packages[@]}"; do
+        if [[ " ${selections[*]} " == *" $package "* ]]; then
+            # Install selected packages
+            install_flatpak_package "$package"
+        elif [[ $installed_packages == *"$package"* ]]; then
+            # Uninstall deselected packages that are currently installed
+            uninstall_flatpak_package "$package"
+        fi
+    done
 }
+
 
 # Function to add a new application to the packages list
 add_application() {
@@ -66,6 +74,17 @@ add_application() {
     mv temp.json packages.json
     echo "Application added: $new_package"
 }
+
+uninstall_flatpak_package() {
+    local package_id="$1"
+    if ! flatpak list | grep -q "$package_id"; then
+        echo "$package_id is not installed, skipping uninstallation."
+        return
+    fi
+    echo "Uninstalling: $package_id"
+    flatpak uninstall -y "$package_id"
+}
+
 
 # Function to remove an application from the packages list
 remove_application() {
